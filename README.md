@@ -29,7 +29,7 @@
 - Сохранение результата в виде:
   - CSV-файла с предсказаниями,
   - JSON-файла с ТОП-5 важными признаками,
-  - PNG-графика плотности вероятностей.
+  - PNG-график плотности вероятностей.
 - Точность модели F1 на Kaggle лидерборде - 0,905 / 0,922
 
 ## Как запустить
@@ -43,7 +43,7 @@ docker build -t shad_mlops_1 .
 
 2. Запуск контейнера:
 ```bash
-docker docker run -it --rm -v ./input:/app/input -v ./output:/app/output shad_mlops_1
+docker run -it --rm -v ./input:/app/input -v ./output:/app/output shad_mlops_1
 ```
 
 - Файл модели `my_catboost.cbm` должен быть в папке `models`.
