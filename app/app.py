@@ -23,6 +23,29 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def wait_for_file_ready(path, timeout=60, interval=1):
+    logger.info(f'Waiting for file to be ready: {path}')
+    previous_size = -1
+    start_time = time.time()
+
+    while True:
+        try:
+            current_size = os.path.getsize(path)
+        except FileNotFoundError:
+            logger.warning("File not found yet...")
+            time.sleep(interval)
+            continue
+
+        if current_size == previous_size and current_size > 0:
+            logger.info("File size stabilized, assuming ready.")
+            return
+
+        if time.time() - start_time > timeout:
+            raise TimeoutError(f"Timeout waiting for file to finish writing: {path}")
+
+        previous_size = current_size
+        time.sleep(interval)
+
 class ProcessingService:
     def __init__(self):
         logger.info('Initializing ProcessingService...')
@@ -34,10 +57,12 @@ class ProcessingService:
     def process_single_file(self, file_path):
         try:
             logger.info('Processing file: %s', file_path)
-            input_df = pd.read_csv(file_path).drop(columns=['name_1', 'name_2', 'street', 'post_code'])
+
+            wait_for_file_ready(file_path)
+            input_df = pd.read_csv(file_path)
 
             logger.info('Starting preprocessing')
-            processed_df = run_preproc(self.train, input_df)
+            processed_df = run_preproc(input_df)
 
             logger.info('Making prediction')
             submission = make_pred(processed_df, file_path)

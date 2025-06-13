@@ -3,6 +3,7 @@ import logging
 import pandas as pd
 from catboost import CatBoostClassifier
 
+
 # Настройка логгера
 logger = logging.getLogger(__name__)
 
@@ -13,16 +14,17 @@ model = CatBoostClassifier()
 model.load_model('./models/my_catboost.cbm')
 
 # Define optimal threshold
-model_th = 0.98
+THRESHOLD = 0.5
 logger.info('Pretrained model imported successfully...')
 
 
 # Make prediction
 def make_pred(dt, path_to_file):
+    
     # Make submission dataframe
     submission = pd.DataFrame({
         'index': pd.read_csv(path_to_file).index,
-        'prediction': (model.predict_proba(dt)[:, 1] > model_th) * 1
+        'prediction': (model.predict_proba(dt)[:, 1] > THRESHOLD) * 1
     })
     logger.info('Prediction complete for file: %s', path_to_file)
 
