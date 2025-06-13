@@ -2,6 +2,8 @@
 
 Это учебный проект по MLOps, реализующий сервис для автоматической обработки входящих CSV-файлов, выполнения предсказаний с помощью обученной модели CatBoost и сохранения результатов.
 
+Датасет можно найти [здесь](https://www.kaggle.com/competitions/teta-ml-1-2025/data).
+
 ## Структура проекта
 
 ```
@@ -44,7 +46,8 @@ docker build -t shad_mlops_1 .
 docker docker run -it --rm -v ./input:/app/input -v ./output:/app/output shad_mlops_1
 ```
 
-> Файл модели `my_catboost.cbm` должен быть в папке `models`.
+- Файл модели `my_catboost.cbm` должен быть в папке `models`.
+- Директория `train_data' должна содержать обучающий датасет train.csv.
 
 ## Как использовать
 
