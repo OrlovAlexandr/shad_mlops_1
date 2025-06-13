@@ -11,17 +11,20 @@ import seaborn as sns
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
+
 sys.path.append(os.path.abspath('./src'))
-from preprocessing import load_train_data, run_preproc
+from preprocessing import load_train_data
+from preprocessing import run_preproc
 from scorer import make_pred
+
 
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler('/app/logs/service.log'),
-        logging.StreamHandler()
-    ]
+        logging.StreamHandler(),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -61,6 +64,7 @@ def plot_probabilities_density(y_proba_, filepath):
     plt.savefig(filepath, dpi=300, bbox_inches='tight')
     plt.close()
 
+
 class ProcessingService:
     def __init__(self):
         logger.info('Initializing ProcessingService...')
@@ -87,7 +91,7 @@ class ProcessingService:
             output_filename = f"predictions_{timestamp}_{os.path.basename(file_path)}"
             submission.to_csv(os.path.join(self.output_dir, output_filename), index=False)
             logger.info('Predictions saved to: %s', output_filename)
-            
+
             top_5_filename = f'top_5_features_{timestamp}.json'
             top_5_filepath = os.path.join(self.output_dir, top_5_filename)
             with open(top_5_filepath, 'w', encoding='utf-8') as f:
