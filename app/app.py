@@ -1,10 +1,13 @@
+import json
 import logging
 import os
 import sys
 import time
 from datetime import datetime
 
+import matplotlib.pyplot as plt
 import pandas as pd
+import seaborn as sns
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
@@ -46,6 +49,18 @@ def wait_for_file_ready(path, timeout=60, interval=1):
         previous_size = current_size
         time.sleep(interval)
 
+
+def plot_probabilities_density(y_proba_, filepath):
+    plt.figure(figsize=(10, 6))
+    sns.kdeplot(y_proba_, fill=True, color='steelblue', alpha=0.6)
+    plt.title('Density Plot of Predicted Probabilities', fontsize=14)
+    plt.xlabel('Predicted Probability (Class 1)', fontsize=12)
+    plt.ylabel('Density', fontsize=12)
+    plt.grid(True, linestyle='--', alpha=0.5)
+
+    plt.savefig(filepath, dpi=300, bbox_inches='tight')
+    plt.close()
+
 class ProcessingService:
     def __init__(self):
         logger.info('Initializing ProcessingService...')
@@ -65,13 +80,24 @@ class ProcessingService:
             processed_df = run_preproc(input_df)
 
             logger.info('Making prediction')
-            submission = make_pred(processed_df, file_path)
+            submission, top_5_features, y_proba = make_pred(processed_df, file_path)
 
             logger.info('Prepraring submission file')
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             output_filename = f"predictions_{timestamp}_{os.path.basename(file_path)}"
             submission.to_csv(os.path.join(self.output_dir, output_filename), index=False)
             logger.info('Predictions saved to: %s', output_filename)
+            
+            top_5_filename = f'top_5_features_{timestamp}.json'
+            top_5_filepath = os.path.join(self.output_dir, top_5_filename)
+            with open(top_5_filepath, 'w', encoding='utf-8') as f:
+                json.dump(top_5_features, f, indent=4, ensure_ascii=False)
+            logger.info('Top 5 features saved to: %s', top_5_filepath)
+
+            plot_name = f'plot_probabilities_density_{timestamp}.png'
+            plot_filepath = os.path.join(self.output_dir, plot_name)
+            plot_probabilities_density(y_proba, plot_filepath)
+            logger.info('Density plot saved to: %s', plot_filepath)
 
         except Exception as e:
             logger.error('Error processing file %s: %s', file_path, e, exc_info=True)
