@@ -42,12 +42,12 @@ docker build -t shad_mlops_1 .
 ```
 
 2. Запуск контейнера:
+- Файл модели `my_catboost.cbm` должен быть в папке `models`.
+- Директория `train_data' должна содержать обучающий датасет train.csv.
+  
 ```bash
 docker run -it --rm -v ./input:/app/input -v ./output:/app/output shad_mlops_1
 ```
-
-- Файл модели `my_catboost.cbm` должен быть в папке `models`.
-- Директория `train_data' должна содержать обучающий датасет train.csv.
 
 ## Как использовать
 
